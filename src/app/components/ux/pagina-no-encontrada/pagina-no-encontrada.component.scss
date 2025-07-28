@@ -1,0 +1,12 @@
+section {
+    height: 100dvh !important;
+    background-image: url('../../../../../assets/images/fondo_404.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.recuadro-error {
+    backdrop-filter: blur(40px);
+    border-radius: 10px;
+}

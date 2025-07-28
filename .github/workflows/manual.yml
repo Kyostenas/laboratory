@@ -1,0 +1,30 @@
+
+name: Compilar y desplegar
+on:
+  push:
+    branches:
+      - master
+permissions:
+  contents: write
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Compilación
+        run: |
+          npm ci
+          npm i -g @angular/cli
+          sed -i "s/-.-.-.-/${{ secrets.PROXY_AUTHORIZATION }}/g" src/environments/environment.prod.ts
+          ng build --configuration production --base-href "https://carrduci.github.io/carrduci-sys-online/"
+
+      - name: Desplegado
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist/carrduci-sys-online/browser
+        env:
+          BRANCH: gh-pages
+
+      
