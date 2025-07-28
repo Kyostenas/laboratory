@@ -17,13 +17,12 @@ jobs:
         run: |
           npm ci
           npm i -g @angular/cli
-          sed -i "s/-.-.-.-/${{ secrets.PROXY_AUTHORIZATION }}/g" src/environments/environment.prod.ts
-          ng build --configuration production --base-href "https://carrduci.github.io/carrduci-sys-online/"
+          ng build --configuration production --base-href "https://kyostenas.github.io/laboratory/"
 
       - name: Desplegado
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist/carrduci-sys-online/browser
+          folder: dist/laboratory/browser
         env:
           BRANCH: gh-pages
 
