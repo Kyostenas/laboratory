@@ -68,16 +68,29 @@ declare global {
   export type DeepKeys<OBJECT> = OBJECT extends any[]
     ? never
     : OBJECT extends object
-    ? {
-        [KEY in keyof OBJECT]: KEY extends string
-          ? OBJECT[KEY] extends (...args: any[]) => any
-            ? never
-            : Exclude<OBJECT[KEY], undefined> extends object
-            ? `${KEY}` | `${KEY}.${DeepKeys<Exclude<OBJECT[KEY], undefined>>}`
-            : `${KEY}`
-          : never;
-      }[keyof OBJECT]
-    : never;
+      ? {
+          [KEY in keyof OBJECT]: KEY extends string
+            ? OBJECT[KEY] extends (...args: any[]) => any
+              ? never
+              : Exclude<OBJECT[KEY], undefined> extends object
+                ?
+                    | `${KEY}`
+                    | `${KEY}.${DeepKeys<Exclude<OBJECT[KEY], undefined>>}`
+                : `${KEY}`
+            : never;
+        }[keyof OBJECT]
+      : never;
+
+  export type GetNestedValue<
+    OBJECT,
+    PATHS extends string,
+  > = PATHS extends `${infer Key}.${infer Rest}`
+    ? Key extends keyof OBJECT
+      ? GetNestedValue<OBJECT[Key], Rest>
+      : never
+    : PATHS extends keyof OBJECT
+      ? OBJECT[PATHS]
+      : never;
 
   export type Pagination = {
     limit: number;
@@ -85,7 +98,7 @@ declare global {
     current_page: number;
     page_count: number;
     element_count: number;
-    sorting_fields: {
+    sorting_fields?: {
       [type: string]: {
         field: string;
         title: string;

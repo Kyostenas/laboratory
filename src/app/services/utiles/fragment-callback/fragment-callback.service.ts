@@ -10,7 +10,9 @@ export class FragmentCallbackService {
         private router: Router,
         private route: ActivatedRoute,
     ) {
-        this.current_fragment = toSignal(this.route.fragment, {initialValue: undefined})
+        this.current_fragment = toSignal(this.route.fragment, {
+            initialValue: undefined,
+        });
     }
 
     private callbacks: {
@@ -19,13 +21,13 @@ export class FragmentCallbackService {
             eliminado_fragmento: () => void;
         };
     } = {};
-     
-    current_fragment!: Signal<string | null | undefined>
+
+    current_fragment!: Signal<string | null | undefined>;
 
     register_callback(
         fragment: DeepValues<typeof this.ALLOWED_FRAGMENTS, string>,
         callback_fragment_aparition: () => void,
-        callback_fragment_deletion: () => void
+        callback_fragment_deletion: () => void,
     ): void {
         this.callbacks[fragment] = {
             aparicion_fragmento: callback_fragment_aparition,
@@ -35,7 +37,7 @@ export class FragmentCallbackService {
 
     private fragmento_actual!: string;
     execute_aparition_callback(
-        fragment: DeepValues<typeof this.ALLOWED_FRAGMENTS, string>
+        fragment: DeepValues<typeof this.ALLOWED_FRAGMENTS, string>,
     ): void {
         this.fragmento_actual = fragment;
         if (!!this.callbacks[fragment]) {
@@ -63,7 +65,7 @@ export class FragmentCallbackService {
             .navigate([], {
                 queryParamsHandling: 'preserve',
                 fragment: undefined,
-                replaceUrl: true
+                replaceUrl: true,
             })
             .then(() => {
                 this.router.navigate([], {
@@ -75,7 +77,7 @@ export class FragmentCallbackService {
     }
 
     process_string(
-        fragment: string | undefined | null
+        fragment: string | undefined | null,
     ): DeepValues<typeof this.ALLOWED_FRAGMENTS, string> {
         if (!!fragment) {
             if (Object.keys(this.ALLOWED_FRAGMENTS).includes(fragment)) {
@@ -105,7 +107,7 @@ export class FragmentCallbackService {
         global_search: 'global_search',
         user_profile: 'user_profile',
         user_notifications: 'user_notifications',
-        
+
         /**
          * DO NOT USE
          */

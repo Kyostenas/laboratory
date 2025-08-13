@@ -10,7 +10,7 @@ export class StandardRoutingService {
     constructor(
         private router: Router,
         private fragment_service: FragmentCallbackService,
-        private query_service: ControlQueriesService
+        private query_service: ControlQueriesService,
     ) {}
 
     /**
@@ -25,7 +25,7 @@ export class StandardRoutingService {
             typeof this.fragment_service.ALLOWED_FRAGMENTS,
             string
         >,
-        clean: boolean = true
+        clean: boolean = true,
     ) {
         if (clean) {
             this.query_service.limpiar_todo();
@@ -54,14 +54,17 @@ export class StandardRoutingService {
         this.query_service.limpiar_todo();
         this.fragment_service.clean_fragment();
         setTimeout(() => {
-            const CURRENT_URL = this.router.url.split('?')[0]
+            const CURRENT_URL = this.router.url.split('?')[0];
             this.navigate([CURRENT_URL ?? '', 'form']);
             setTimeout(() => {
-                this.query_service.define_multipe({
-                    id: object_id,
-                    form_mode: 'detail',
-                }, true)
+                this.query_service.define_multipe(
+                    {
+                        id: object_id,
+                        form_mode: 'detail',
+                    },
+                    true,
+                );
             }, 0);
-        })
+        });
     }
 }

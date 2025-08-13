@@ -70,6 +70,121 @@ export const NOMBRE_CAMPO_ROL_LOCAL_STORAGE = 'rol_usuario';
 //   #endregion FECHA Y TIEMPO (FIN)
 // (o==================================================================o)
 
+// (o-----------------------------------------------------------/\-----o)
+//   #endregion FECHA Y TIEMPO (FIN)
+// (o==================================================================o)
+
+// (o==================================================================o)
+//   #region TIPOS BOOTSTRAP (INICIO)
+// (o-----------------------------------------------------------\/-----o)
+
+export type COLORES_BS_FONDO =
+    | 'bg-primary'
+    | 'bg-primary-subtle'
+    | 'bg-secondary'
+    | 'bg-secondary-subtle'
+    | 'bg-success'
+    | 'bg-success-subtle'
+    | 'bg-danger'
+    | 'bg-danger-subtle'
+    | 'bg-warning'
+    | 'bg-warning-subtle'
+    | 'bg-info'
+    | 'bg-info-subtle'
+    | 'bg-light'
+    | 'bg-light-subtle'
+    | 'bg-dark'
+    | 'bg-dark-subtle'
+    | 'bg-body-secondary'
+    | 'bg-body-tertiary'
+    | 'bg-body'
+    | 'bg-black'
+    | 'bg-white'
+    | 'bg-transparent';
+
+export type COLROES_BS_BORDES =
+    | 'border-primary'
+    | 'border-primary'
+    | 'border-secondary'
+    | 'border-secondary'
+    | 'border-success'
+    | 'border-success'
+    | 'border-danger'
+    | 'border-danger'
+    | 'border-warning'
+    | 'border-warning'
+    | 'border-info'
+    | 'border-info'
+    | 'border-light'
+    | 'border-light'
+    | 'border-dark'
+    | 'border-dark'
+    | 'border-black'
+    | 'border-white';
+
+export type COLORES_BS_TEXTO =
+    | 'text-primary'
+    | 'text-primary-emphasis'
+    | 'text-secondary'
+    | 'text-secondary-emphasis'
+    | 'text-success'
+    | 'text-success-emphasis'
+    | 'text-danger'
+    | 'text-danger-emphasis'
+    | 'text-warning'
+    | 'text-warning-emphasis'
+    | 'text-info'
+    | 'text-info-emphasis'
+    | 'text-light'
+    | 'text-light-emphasis'
+    | 'text-dark'
+    | 'text-dark-emphasis'
+    | 'text-body'
+    | 'text-body-emphasis'
+    | 'text-body-secondary'
+    | 'text-body-tertiary'
+    | 'text-black'
+    | 'text-white'
+    | 'text-black-50'
+    | 'text-white-50';
+
+export type POSICIONES_BS =
+    | 'top_left'
+    | 'top_center'
+    | 'top_right'
+    | 'middle_left'
+    | 'middle_center'
+    | 'middle_right'
+    | 'bottom_left'
+    | 'bottom_center'
+    | 'bottom_right';
+
+export type COLORES_BS_ALERT =
+    | 'alert-primary'
+    | 'alert-secondary'
+    | 'alert-success'
+    | 'alert-danger'
+    | 'alert-warning'
+    | 'alert-info'
+    | 'alert-light'
+    | 'alert-dark';
+
+export const POSICIONES_BS_A_CLASES = {
+    top_left: 'top-0 start-0',
+    top_center: 'top-0 start-50 translate-middle-x',
+    top_right: 'top-0 end-0',
+    middle_left: 'top-50 start-0 translate-middle-y',
+    middle_center: 'top-50 start-50 translate-middle',
+    middle_right: 'top-50 end-0 translate-middle-y',
+    bottom_left: 'bottom-0 start-0',
+    bottom_center: 'bottom-0 start-50 translate-middle-x',
+    bottom_right: 'bottom-0 end-0',
+};
+
+// (o-----------------------------------------------------------/\-----o)
+//   #endregion TIPOS BOOTSTRAP (FIN)
+// (o==================================================================o)
+
 // (o==================================================================o)
 //   #region VALIDACIONES (INICIO)
 // (o-----------------------------------------------------------\/-----o)
@@ -82,11 +197,11 @@ export const REGEX_VALIDACION_CORREO =
 // (o==================================================================o)
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class UtilidadesService {
-   constructor() {}
-   
+    constructor() {}
+
     crear_bsonobj_id_para_variable() {
         return '_' + new ObjectID().toHexString();
     }
@@ -201,7 +316,7 @@ export class UtilidadesService {
             reemplazoValorIndefinido?: any;
             valorError?: any;
             aplanarSubArreglos?: boolean;
-        }
+        },
     ): any {
         if (!opciones) opciones = {};
         opciones.reemplazoValorIndefinido =
@@ -221,9 +336,9 @@ export class UtilidadesService {
                                 unSubObjeto,
                                 pasoRuta,
                                 ' ',
-                                opciones
+                                opciones,
                             );
-                        }
+                        },
                     );
                     if (!opciones.aplanarSubArreglos) {
                         objetoActual = objetoActualTemporal;
@@ -232,7 +347,7 @@ export class UtilidadesService {
                         objetoActualTemporal.forEach((objeto: any) => {
                             const esArreglo = this.revisar_tipo(
                                 objeto,
-                                'Array'
+                                'Array',
                             );
                             if (esArreglo) aplanado.push(...objeto);
                             else aplanado.push(objeto);
@@ -280,7 +395,7 @@ export class UtilidadesService {
 
     obtener_nivel_de_descendencia_entre_nodos_html(
         parent: HTMLElement,
-        child: HTMLElement
+        child: HTMLElement,
     ): number {
         let current = child;
         let level = 0;
@@ -331,7 +446,7 @@ export class UtilidadesService {
      */
     obtener_elementos_enfocables_html() {
         return Array.from(
-            document.querySelectorAll('[tabindex]')
+            document.querySelectorAll('[tabindex]'),
         ) as HTMLElement[];
     }
 
@@ -340,7 +455,7 @@ export class UtilidadesService {
         if (elementos_enfocables.length === 0)
             return { indice_actual: -1, elementos_enfocables };
         const indice_actual = elementos_enfocables.indexOf(
-            document.activeElement as HTMLElement
+            document.activeElement as HTMLElement,
         );
         return { indice_actual, elementos_enfocables };
     }
@@ -357,11 +472,11 @@ export class UtilidadesService {
         }
     }
 
-      range(from: number, to: number, step: number = 1) {
-        let formed_range = []
-        for (let i = from; i < to; i+=step) {
-            formed_range.push(i)
+    range(from: number, to: number, step: number = 1) {
+        let formed_range = [];
+        for (let i = from; i < to; i += step) {
+            formed_range.push(i);
         }
-        return formed_range
+        return formed_range;
     }
 }
