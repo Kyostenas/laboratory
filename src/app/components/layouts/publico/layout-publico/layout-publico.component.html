@@ -1,1 +1,35 @@
-<router-outlet />
+<!-- <router-outlet />  -->
+<!-- <y-generic-floating-container> </y-generic-floating-container> -->
+<div class="tw:w-[100vw] tw:h-[100vh]">
+    <button
+        id="draggableButton"
+        class="btn btn-primary tw:cursor-move tw:select-none tw:absolute tw:p-3 tw:rounded-lg"
+        draggable="true"
+        (dragstart)="onDragStart($event)"
+        (dragend)="onDragEnd($event)"
+        [style.top.px]="buttonTop"
+        [style.left.px]="buttonLeft"
+        [generic-floating-container]="{
+            body_content:
+                'asdñflkjasñdlkfjasñlkdjfñlaksdjfñlaskdjf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf',
+            placement: 'bottom',
+        }"
+    >
+        Drag Me
+        <ng-template #slotContent>
+            <span contentSlot slot="1">Content for Slot 1</span>
+            <p contentSlot slot="1">Another Content for Slot 1</p>
+            <div contentSlot slot="2">Content for Slot 2</div>
+            <p contentSlot slot="3">Content for Slot 3</p>
+            <p contentSlot slot="4">{{ content }}</p>
+            <p contentSlot slot="custom">Content for Custom Slot</p>
+            <p contentSlot>Content for Fallback Slot</p>
+        </ng-template>
+    </button>
+    <button type="button" class="btn btn-dark" (click)="updateContent()">
+        Actualizar
+    </button>
+    <button type="button" class="btn btn-dark" (click)="updateContent()">
+        Actualizar
+    </button>
+</div>
