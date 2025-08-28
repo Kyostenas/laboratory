@@ -1,4 +1,10 @@
-import { Component, signal, TemplateRef, WritableSignal } from '@angular/core';
+import {
+    Component,
+    signal,
+    TemplateRef,
+    ViewChild,
+    WritableSignal,
+} from '@angular/core';
 import { HeaderService } from '../../../../services/utiles/header/header.service';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -61,6 +67,20 @@ export class LayoutPublicoComponent {
     floating_data: FloatingContainerData = {
         body_content: 'hola',
     };
+
+    @ViewChild('flotante1', { static: false })
+    flotante1?: GenericFloatingContainerDirective;
+    @ViewChild('flotante2', { static: false })
+    flotante2?: GenericFloatingContainerDirective;
+
+    algun_contenedor_con_mouse_dentro() {
+        // if (this.flotante1) {
+        //     this.flotante1.trigger_on_mouse_enter_container();
+        // }
+        // if (this.flotante2) {
+        //     this.flotante2.trigger_on_mouse_enter_container();
+        // }
+    }
 
     // (o-----------------------------------------------------------/\-----o)
     //   #endregion FLOATING ELEMENTS

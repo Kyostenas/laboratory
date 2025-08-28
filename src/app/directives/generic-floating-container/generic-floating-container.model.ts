@@ -1,4 +1,5 @@
 import { TemplateRef } from '@angular/core';
+import { GenericFloatingContainerDirective } from './generic-floating-container.directive';
 
 export interface FloatingContainerData {
     header_content?: string | TemplateRef<any>;
@@ -40,6 +41,19 @@ export interface FloatingContainerData {
     full_screen_breakpoint?: number;
     full_screen?: boolean;
     placement?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+export interface ActiveContainerData {
+    element: HTMLDivElement;
+    directive: GenericFloatingContainerDirective;
+    parent?: {
+        element: HTMLDivElement;
+        directive: GenericFloatingContainerDirective;
+    };
+    children?: {
+        element: HTMLDivElement;
+        directive: GenericFloatingContainerDirective;
+    }[];
 }
 
 // export inteface FLoatingContainerStyles {

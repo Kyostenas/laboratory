@@ -1,7 +1,8 @@
 <!-- <router-outlet />  -->
 <!-- <y-generic-floating-container> </y-generic-floating-container> -->
-<div class="tw:w-[100vw] tw:h-[100vh]">
+<div class="tw:w-[100vw] tw:h-[200vh]">
     <button
+        #flotante1
         id="draggableButton"
         class="btn btn-primary tw:cursor-move tw:select-none tw:absolute tw:p-3 tw:rounded-lg"
         draggable="true"
@@ -10,20 +11,178 @@
         [style.top.px]="buttonTop"
         [style.left.px]="buttonLeft"
         [generic-floating-container]="{
-            body_content:
-                'asdñflkjasñdlkfjasñlkdjfñlaksdjfñlaskdjf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf\nasdf',
+            body_content: contenido,
             placement: 'bottom',
+            body_padding: '0px',
         }"
     >
         Drag Me
-        <ng-template #slotContent>
-            <span contentSlot slot="1">Content for Slot 1</span>
-            <p contentSlot slot="1">Another Content for Slot 1</p>
-            <div contentSlot slot="2">Content for Slot 2</div>
-            <p contentSlot slot="3">Content for Slot 3</p>
-            <p contentSlot slot="4">{{ content }}</p>
-            <p contentSlot slot="custom">Content for Custom Slot</p>
-            <p contentSlot>Content for Fallback Slot</p>
-        </ng-template>
     </button>
 </div>
+
+<ng-template #contenido>
+    <ul class="list-group">
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción 1</div>
+                <div class="col-2">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Hacer otra cosa</div>
+                <div class="col-2">
+                    <i class="fas fa-circle"></i>
+                </div>
+            </div>
+        </li>
+        <li
+            class="list-group-item list-group-item-action"
+            [generic-floating-container]="{
+                body_content: contenido2,
+                placement: 'right',
+                body_padding: '0px',
+            }"
+        >
+            <div class="row">
+                <div class="col-10">Opción anidada</div>
+                <div class="col-2">
+                    <i class="fas fa-caret-right"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción ac0z102b123</div>
+                <div class="col-2">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción bd1a113c124</div>
+                <div class="col-2">
+                    <i class="fas fa-hashtag"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción ce2b124d125</div>
+                <div class="col-2">
+                    <i class="fas fa-node"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción df3c135e126</div>
+                <div class="col-2">
+                    <i class="fas fa-js"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción 1</div>
+                <div class="col-2">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Hacer otra cosa</div>
+                <div class="col-2">
+                    <i class="fas fa-circle"></i>
+                </div>
+            </div>
+        </li>
+        <li
+            class="list-group-item list-group-item-action"
+            [generic-floating-container]="{
+                body_content: contenido2,
+                placement: 'right',
+                body_padding: '0px',
+            }"
+        >
+            <div class="row">
+                <div class="col-10">Opción anidada</div>
+                <div class="col-2">
+                    <i class="fas fa-caret-right"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción ac0z102b123</div>
+                <div class="col-2">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción bd1a113c124</div>
+                <div class="col-2">
+                    <i class="fas fa-hashtag"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción ce2b124d125</div>
+                <div class="col-2">
+                    <i class="fas fa-node"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción df3c135e126</div>
+                <div class="col-2">
+                    <i class="fas fa-js"></i>
+                </div>
+            </div>
+        </li>
+    </ul>
+</ng-template>
+
+<ng-template #contenido2>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Hacer otra cosa</div>
+                <div class="col-2">
+                    <i class="fas fa-circle"></i>
+                </div>
+            </div>
+        </li>
+        <li
+            class="list-group-item list-group-item-action"
+            [generic-floating-container]="{
+                body_content: contenido,
+                placement: 'right',
+                body_padding: '0px',
+            }"
+        >
+            <div class="row">
+                <div class="col-10">Opción anidada</div>
+                <div class="col-2">
+                    <i class="fas fa-caret-right"></i>
+                </div>
+            </div>
+        </li>
+        <li class="list-group-item list-group-item-action">
+            <div class="row">
+                <div class="col-10">Opción ac0z102b123</div>
+                <div class="col-2">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+        </li>
+    </ul>
+</ng-template>

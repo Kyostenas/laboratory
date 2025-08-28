@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import { FloatingContainerData } from './generic-floating-container.model';
 import { delay, map, merge, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { GenericFloatingContainerService } from './generic-floating-container.service';
 
 const MIN_TABLET_SCREEN_SIZE_PX = 991;
 const DEFAUTL_MIN_HEIGHT_REM = 1.5;
@@ -46,11 +47,16 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
 
     @Output('destroyed') destroyed_emitter: EventEmitter<void> =
         new EventEmitter();
+    @Output('mouse_enter_container')
+    mouse_enter_container_emitter: EventEmitter<void> = new EventEmitter();
+    @Output('mouse_leave_container')
+    mouse_leave_container_emitter: EventEmitter<void> = new EventEmitter();
 
     constructor(
         private renderer2: Renderer2,
         private element_ref: ElementRef,
         private cdr: ChangeDetectorRef,
+        private floating_container_service: GenericFloatingContainerService,
     ) {}
 
     ngOnInit(): void {
@@ -61,14 +67,8 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (this.unlisten_enter) {
-            this.unlisten_enter();
-        }
-        if (this.unlisten_leave) {
-            this.unlisten_leave();
-        }
-        this.destroy$.next();
-        this.destroy$.complete();
+        console.log('destroy');
+        this.close_container();
     }
 
     // (o,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,o)
@@ -92,20 +92,23 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
     HTML_document_body: HTMLElement = document.body;
     HTML_host?: HTMLElement;
     HTML_backdrop?: HTMLElement;
-    HTML_container?: HTMLElement;
-    HTML_header?: HTMLElement;
-    HTML_body?: HTMLElement;
-    HTML_footer?: HTMLElement;
+    HTML_container?: HTMLDivElement;
+    HTML_header?: HTMLDivElement;
+    HTML_body?: HTMLDivElement;
+    HTML_footer?: HTMLDivElement;
     EMBEDDED_header?: EmbeddedViewRef<any>;
     EMBEDDED_body?: EmbeddedViewRef<any>;
     EMBEDDED_footer?: EmbeddedViewRef<any>;
 
-    private mouse_enter$ = new Subject<void>();
-    private mouse_leave$ = new Subject<void>();
-    private destroy$ = new Subject<void>();
+    should_keep_open$ = new Subject<void>();
+    should_close$ = new Subject<void>();
+    closed$ = new Subject<void>();
 
     private unlisten_enter?: () => void;
     private unlisten_leave?: () => void;
+    private unlisten_window_scroll?: () => void;
+    private unlisten_window_resize?: () => void;
+    private resize_observer?: ResizeObserver;
 
     // (o,,,,,,,,,,,,,,,,,,,,,,,,^,,,,,o)
     //   #endregion variables
@@ -119,21 +122,19 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
     //   #region LISTENERS
     // (o-----------------------------------------------------------\/-----o)
 
-    @HostListener('window:resize')
-    on_window_resize() {
+    on_window_resize = () => {
         this.evaluate_screen_mode();
         this.positionate_container(
             this.container_data.placement ?? DEFAULT_PLACEMENT,
         );
-    }
+    };
 
-    @HostListener('window:scroll')
-    on_window_scroll() {
+    on_window_scroll = () => {
         this.evaluate_screen_mode();
         this.positionate_container(
             this.container_data.placement ?? DEFAULT_PLACEMENT,
         );
-    }
+    };
 
     @HostListener('click', ['$event'])
     on_click(event: MouseEvent) {
@@ -141,17 +142,109 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
     }
 
     @HostListener('mouseenter')
-    on_mouse_enter() {
+    on_mouse_enter_host() {
         const EXISTS = !!document.getElementById(this.container_id);
         if (!(this.container_visible && EXISTS && this.HTML_container)) {
             this.create_container();
         }
-        this.mouse_enter$.next();
+        this.should_keep_open$.next();
     }
 
     @HostListener('mouseleave')
-    on_mouse_leave() {
-        this.mouse_leave$.next();
+    on_mouse_leave_host() {
+        this.should_close$.next();
+    }
+
+    private on_mouse_enter_container = () => {
+        this.mouse_enter_container_emitter.emit();
+        this.should_keep_open$.next();
+        this.floating_container_service.send_should_keep_open_signal(this);
+    };
+
+    private on_mouse_leave_container = () => {
+        this.mouse_leave_container_emitter.emit();
+        this.should_close$.next();
+        this.floating_container_service.send_should_close_signal(this);
+    };
+
+    on_container_resize = (entries: ResizeObserverEntry[]) => {
+        this.positionate_container(
+            this.container_data?.placement ?? DEFAULT_PLACEMENT,
+        );
+    };
+
+    private prepare_container_listeners() {
+        this.unlisten_enter = this.renderer2.listen(
+            this.HTML_container,
+            'mouseenter',
+            this.on_mouse_enter_container,
+        );
+        this.unlisten_leave = this.renderer2.listen(
+            this.HTML_container,
+            'mouseleave',
+            this.on_mouse_leave_container,
+        );
+        this.unlisten_window_scroll = this.renderer2.listen(
+            'window',
+            'scroll',
+            this.on_window_scroll,
+        );
+        this.unlisten_window_resize = this.renderer2.listen(
+            'window',
+            'resize',
+            this.on_window_resize,
+        );
+        this.resize_observer = new ResizeObserver(this.on_container_resize);
+        if (this.HTML_container) {
+            this.resize_observer.observe(this.HTML_container);
+        }
+
+        const show$ = this.should_keep_open$.pipe(map(() => true));
+        const hide$ = this.should_close$.pipe(map(() => false));
+
+        merge(show$, hide$)
+            .pipe(
+                switchMap((is_show: boolean) => {
+                    if (is_show) {
+                        return of(true);
+                    } else {
+                        return of(false).pipe(delay(DEFAULT_HIDE_DELAY));
+                    }
+                }),
+                takeUntil(this.closed$),
+            )
+            .subscribe((visible) => {
+                if (!visible) {
+                    const EXISTS = !!document.getElementById(this.container_id);
+                    if (
+                        this.container_visible &&
+                        EXISTS &&
+                        this.HTML_container
+                    ) {
+                        this.close_container();
+                    }
+                }
+            });
+    }
+
+    stop_listeining_events() {
+        if (this.unlisten_enter) {
+            this.unlisten_enter();
+        }
+        if (this.unlisten_leave) {
+            this.unlisten_leave();
+        }
+        if (this.unlisten_window_resize) {
+            this.unlisten_window_resize();
+        }
+        if (this.unlisten_window_scroll) {
+            this.unlisten_window_scroll();
+        }
+        if (this.resize_observer) {
+            this.resize_observer.disconnect();
+        }
+        this.closed$.next();
+        this.closed$.complete();
     }
 
     // (o-----------------------------------------------------------/\-----o)
@@ -220,9 +313,17 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
         }
     }
 
-    assign_classes_to_element() {}
+    assign_classes_to_element(element: HTMLElement, class_list: string[]) {
+        for (const CLASS of class_list) {
+            this.renderer2.addClass(element, CLASS);
+        }
+    }
 
-    remove_classes_of_element() {}
+    remove_classes_of_element(element: HTMLElement, class_list: string[]) {
+        for (const CLASS of class_list) {
+            this.renderer2.removeClass(element, CLASS);
+        }
+    }
 
     get_current_font_size() {
         const STYLE = window.getComputedStyle(this.HTML_document_body);
@@ -241,71 +342,31 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
     toggle_container() {
         const EXISTS = !!document.getElementById(this.container_id);
         if (this.container_visible && EXISTS && this.HTML_container) {
-            this.destroy_container();
-            this.ngOnDestroy();
+            this.close_container();
         } else {
             this.create_container();
         }
     }
 
-    destroy_container() {
+    close_container() {
         this.renderer2.removeChild(
             this.HTML_document_body,
             this.HTML_container,
         );
         this.container_visible = false;
+        this.stop_listeining_events();
         this.destroyed_emitter.emit();
+        this.floating_container_service.unregister_container(this);
     }
 
     create_container() {
         this.HTML_container = this.renderer2.createElement('div');
-        this.unlisten_enter = this.renderer2.listen(
-            this.HTML_container,
-            'mouseenter',
-            () => {
-                this.mouse_enter$.next();
-            },
-        );
-        this.unlisten_leave = this.renderer2.listen(
-            this.HTML_container,
-            'mouseleave',
-            () => {
-                this.mouse_leave$.next();
-            },
-        );
-
-        const show$ = this.mouse_enter$.pipe(map(() => true));
-        const hide$ = this.mouse_leave$.pipe(map(() => false));
-
-        merge(show$, hide$)
-            .pipe(
-                switchMap((is_show: boolean) => {
-                    if (is_show) {
-                        return of(true);
-                    } else {
-                        return of(false).pipe(delay(DEFAULT_HIDE_DELAY));
-                    }
-                }),
-                takeUntil(this.destroy$),
-            )
-            .subscribe((visible) => {
-                if (!visible) {
-                    const EXISTS = !!document.getElementById(this.container_id);
-                    if (
-                        this.container_visible &&
-                        EXISTS &&
-                        this.HTML_container
-                    ) {
-                        this.destroy_container();
-                        this.ngOnDestroy();
-                    }
-                } else {
-                    this.positionate_container(
-                        this.container_data?.placement ?? DEFAULT_PLACEMENT,
-                    );
-                }
-            });
-
+        if (this.HTML_container) {
+            this.assign_classes_to_element(this.HTML_container, [
+                'floating-container',
+            ]);
+        }
+        this.prepare_container_listeners();
         if (this.HTML_container) {
             this.assign_styles_to_element(this.HTML_container, {
                 isolation: 'isolate',
@@ -375,20 +436,26 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
         this.cdr?.detectChanges();
         this.container_visible = true;
 
-        // if (this.container_data.footer_content) {
-        //     this.HTML_footer = this.renderer2.createElement('div')
-        // }
+        this.floating_container_service.register_container(this);
     }
 
-    check_screen_bounds(placement: FloatingContainerData['placement']) {
+    check_screen_bounds(
+        placement: FloatingContainerData['placement'],
+        iteration_number: number,
+    ) {
         const container_position = this.HTML_container?.getBoundingClientRect();
         let top_correction = 0;
         let left_correction = 0;
         let recalculate = false;
+
         if ((container_position?.top ?? 0) < 0) {
             if (placement === 'top') {
                 recalculate = true;
-                placement = 'bottom';
+                if (iteration_number > 1) {
+                    placement = 'left';
+                } else {
+                    placement = 'bottom';
+                }
             } else {
                 top_correction = container_position?.top ?? 0;
             }
@@ -413,7 +480,11 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
         if ((container_position?.bottom ?? 0) > window.innerHeight) {
             if (placement === 'bottom') {
                 recalculate = true;
-                placement = 'top';
+                if (iteration_number > 1) {
+                    placement = 'left';
+                } else {
+                    placement = 'top';
+                }
             } else {
                 top_correction =
                     window.innerHeight - (container_position?.bottom ?? 0);
@@ -434,13 +505,7 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
         _left_correction: number = 0,
         iteration_number: number = 0,
     ): any {
-        if (iteration_number > 8) {
-            return;
-        }
-
         const host_position = this.HTML_host?.getBoundingClientRect();
-        const scroll_y = window.scrollY || this.HTML_document_body.scrollTop;
-        const scroll_x = window.scrollX || this.HTML_document_body.scrollLeft;
         const container_height = this.HTML_container?.offsetHeight;
         const container_width = this.HTML_container?.offsetWidth;
         const viewport_height = window.innerHeight;
@@ -456,20 +521,18 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
         switch (_placement) {
             case 'top':
                 top =
-                    (host_position?.top ?? 0) +
-                    scroll_y -
+                    (host_position?.top ?? 0) -
                     (container_height ?? 0) -
                     DEFAULT_CONTAINER_SEPARATION_PX;
-                left = (host_position?.left ?? 0) + scroll_x;
+                left = host_position?.left ?? 0;
                 max_width = viewport_width;
                 max_height = viewport_height + (container_height ?? 0) + top;
                 break;
             case 'bottom':
                 top =
                     (host_position?.bottom ?? 0) +
-                    scroll_y +
                     DEFAULT_CONTAINER_SEPARATION_PX;
-                left = (host_position?.left ?? 0) + scroll_x;
+                left = host_position?.left ?? 0;
                 max_width = viewport_width;
                 max_height = viewport_height + (viewport_height - top);
                 break;
@@ -477,7 +540,6 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
                 top = host_position?.top ?? 0;
                 left =
                     (host_position?.right ?? 0) +
-                    scroll_x +
                     DEFAULT_CONTAINER_SEPARATION_PX;
                 max_width = viewport_width - left;
                 max_height = viewport_height;
@@ -493,29 +555,49 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
                 break;
             default:
                 top =
-                    (host_position?.top ?? 0) +
-                    scroll_y -
+                    (host_position?.top ?? 0) -
                     (container_height ?? 0) -
                     DEFAULT_CONTAINER_SEPARATION_PX;
-                left = (host_position?.left ?? 0) + scroll_x;
+                left = host_position?.left ?? 0;
                 max_width = viewport_width;
                 max_height = viewport_height + (container_height ?? 0) + top;
                 break;
         }
 
-        if (this.HTML_container) {
-            this.assign_styles_to_element(this.HTML_container, {
-                'max-height': `${max_height}px`,
-                'max-width': `${max_width}px`,
-                top: `${top}px`,
-                left: `${left}px`,
-            });
+        if (
+            (this.HTML_container?.offsetWidth ?? 0) >=
+            DEFAUTL_MIN_WIDTH_REM * this.get_current_font_size()
+        ) {
+            if ((this.HTML_container?.offsetWidth ?? 0) < max_height) {
+                min_width = this.HTML_container?.offsetWidth ?? 0;
+            } else {
+                min_width = max_width;
+            }
+        }
+        if (
+            (this.HTML_container?.offsetHeight ?? 0) >=
+            DEFAUTL_MIN_HEIGHT_REM * this.get_current_font_size()
+        ) {
+            if ((this.HTML_container?.offsetHeight ?? 0) < max_height) {
+                min_height = this.HTML_container?.offsetHeight ?? 0;
+            } else {
+                min_height = max_height;
+            }
         }
 
-        const { top_correction, left_correction, recalculate, placement } =
-            this.check_screen_bounds(_placement);
+        this.apply_position_styles(
+            max_height,
+            max_width,
+            min_height,
+            min_width,
+            top ?? 0,
+            left,
+        );
 
-        if (recalculate) {
+        const { top_correction, left_correction, recalculate, placement } =
+            this.check_screen_bounds(_placement, iteration_number);
+
+        if (recalculate && iteration_number < 4) {
             return this.positionate_container(
                 placement,
                 top_correction,
@@ -527,46 +609,36 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
         top = (top ?? 0) + top_correction;
         left = (left ?? 0) + left_correction;
 
-        if (
-            (this.HTML_container?.offsetWidth ?? 0) >=
-                DEFAUTL_MIN_WIDTH_REM * this.get_current_font_size() &&
-            !this.container_data.min_width
-        ) {
-            if ((this.HTML_container?.offsetWidth ?? 0) < max_height) {
-                min_width = this.HTML_container?.offsetWidth ?? 0;
-            } else {
-                min_width = max_width;
-            }
-        }
-        if (
-            (this.HTML_container?.offsetHeight ?? 0) >=
-                DEFAUTL_MIN_HEIGHT_REM * this.get_current_font_size() &&
-            !this.container_data.min_height
-        ) {
-            if ((this.HTML_container?.offsetHeight ?? 0) < max_height) {
-                min_height = this.HTML_container?.offsetHeight ?? 0;
-            } else {
-                min_height = max_height;
-            }
-        }
+        this.apply_position_styles(
+            max_height,
+            max_width,
+            min_height,
+            min_width,
+            top,
+            left,
+        );
+    }
 
+    apply_position_styles(
+        max_height: number,
+        max_width: number,
+        min_height: number,
+        min_width: number,
+        top: number,
+        left: number,
+    ) {
         if (this.HTML_container) {
             this.assign_styles_to_element(this.HTML_container, {
-                'max-height': `${max_height}px`,
-                'max-width': `${max_width}px`,
-                'min-height': `${min_height}px`,
-                'min-width': `${min_width}px`,
+                'max-height':
+                    this.container_data?.max_height ?? `${max_height}px`,
+                'max-width': this.container_data?.max_width ?? `${max_width}px`,
+                'min-height':
+                    this.container_data?.min_height ?? `${min_height}px`,
+                'min-width': this.container_data?.min_width ?? `${min_width}px`,
                 top: `${top}px`,
                 left: `${left}px`,
             });
         }
-
-        // console.log('POS?.top: ', POS?.top);
-        // console.log('POS?.left: ', POS?.left);
-        // console.log('POS?.right: ', POS?.right);
-        // console.log('POS?.bottom: ', POS?.bottom);
-        // console.log('window height: ', window.innerHeight);
-        // console.log('window width: ', window.innerWidth);
     }
 
     // (o-----------------------------------------------------------/\-----o)
