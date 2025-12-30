@@ -1,36 +1,50 @@
 <!-- <router-outlet />  -->
 <!-- <y-generic-floating-container> </y-generic-floating-container> -->
-<div class="tw:w-[100vw] tw:h-[200vh]">
-    <button
-        #flotante1
-        id="draggableButton"
-        class="btn btn-primary tw:cursor-move tw:select-none tw:absolute tw:p-3 tw:rounded-lg"
-        draggable="true"
-        (dragstart)="onDragStart($event)"
-        (dragend)="onDragEnd($event)"
-        [style.top.px]="buttonTop"
-        [style.left.px]="buttonLeft"
-        [generic-floating-container]="{
-            body_content: contenido,
-            placement: 'bottom',
-            body_padding: '0px',
-        }"
+<div
+    class="tw:max-w-[100vw] tw:min-w-[100vw] tw:max-h-[100vh] tw:min-h-[100vh] tw:object-contain"
+>
+    <div
+        class="tw:bg-[url(https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg)]"
     >
-        Drag Me
-    </button>
+        <button
+            #flotante1
+            id="draggableButton"
+            class="btn btn-primary tw:cursor-move tw:select-none tw:absolute tw:p-3 tw:rounded-lg"
+            draggable="true"
+            (dragstart)="onDragStart($event)"
+            (dragend)="onDragEnd($event)"
+            [style.top.px]="buttonTop"
+            [style.left.px]="buttonLeft"
+            [generic-floating-container]="{
+                body_content: contenido,
+                placement: 'bottom',
+                body_padding: '0px',
+                max_width: '250px',
+                min_width: '250px',
+            }"
+        >
+            Drag Me
+        </button>
+    </div>
 </div>
 
 <ng-template #contenido>
-    <ul class="list-group">
-        <li class="list-group-item list-group-item-action">
+    <ul class="list-group list-group-flush">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
-                <div class="col-10">Opción 1</div>
+                <div class="col-10">
+                    Opción 1 con un nombre muy largo pero que sigue creciendo
+                </div>
                 <div class="col-2">
                     <i class="fas fa-times"></i>
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Hacer otra cosa</div>
                 <div class="col-2">
@@ -39,11 +53,13 @@
             </div>
         </li>
         <li
-            class="list-group-item list-group-item-action"
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
             [generic-floating-container]="{
                 body_content: contenido2,
                 placement: 'right',
                 body_padding: '0px',
+                max_width: '250px',
+                min_width: '250px',
             }"
         >
             <div class="row">
@@ -53,7 +69,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción ac0z102b123</div>
                 <div class="col-2">
@@ -61,7 +79,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción bd1a113c124</div>
                 <div class="col-2">
@@ -69,7 +89,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción ce2b124d125</div>
                 <div class="col-2">
@@ -77,7 +99,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción df3c135e126</div>
                 <div class="col-2">
@@ -85,7 +109,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción 1</div>
                 <div class="col-2">
@@ -93,7 +119,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Hacer otra cosa</div>
                 <div class="col-2">
@@ -102,11 +130,13 @@
             </div>
         </li>
         <li
-            class="list-group-item list-group-item-action"
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
             [generic-floating-container]="{
                 body_content: contenido2,
                 placement: 'right',
                 body_padding: '0px',
+                max_width: '250px',
+                min_width: '250px',
             }"
         >
             <div class="row">
@@ -116,7 +146,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción ac0z102b123</div>
                 <div class="col-2">
@@ -124,7 +156,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción bd1a113c124</div>
                 <div class="col-2">
@@ -132,7 +166,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción ce2b124d125</div>
                 <div class="col-2">
@@ -140,7 +176,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción df3c135e126</div>
                 <div class="col-2">
@@ -153,7 +191,9 @@
 
 <ng-template #contenido2>
     <ul class="list-group list-group-flush">
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Hacer otra cosa</div>
                 <div class="col-2">
@@ -162,11 +202,13 @@
             </div>
         </li>
         <li
-            class="list-group-item list-group-item-action"
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
             [generic-floating-container]="{
                 body_content: contenido,
                 placement: 'right',
                 body_padding: '0px',
+                max_width: '250px',
+                min_width: '250px',
             }"
         >
             <div class="row">
@@ -176,7 +218,9 @@
                 </div>
             </div>
         </li>
-        <li class="list-group-item list-group-item-action">
+        <li
+            class="list-group-item bg-transparent text-white tw:hover:bg-black! border-0 pb-1 pt-1"
+        >
             <div class="row">
                 <div class="col-10">Opción ac0z102b123</div>
                 <div class="col-2">

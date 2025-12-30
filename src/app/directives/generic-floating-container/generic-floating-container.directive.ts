@@ -375,7 +375,7 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
                 'text-wrap': 'wrap',
                 'z-index': '100',
                 'backdrop-filter': 'blur(15px)',
-                background: 'rgba(0, 0, 0, .2)',
+                background: 'rgba(0, 0, 0, .4)',
                 color: 'white',
                 'box-shadow': '0px 4px 8px rgba(0, 0, 0, 0.3)',
                 top: '0',
@@ -390,7 +390,7 @@ export class GenericFloatingContainerDirective implements OnInit, OnDestroy {
                     this.container_data.body_padding ??
                     `${DEFAULT_PADDING_REM}rem`,
                 overflow: 'auto',
-                'border-radius': '.5rem',
+                'border-radius': '1rem',
                 ...this.container_data?.container_css_styles,
             });
             this.assign_properties_to_element(this.HTML_container, {
